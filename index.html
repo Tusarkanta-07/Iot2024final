@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPTEL IoT Assignment Checker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .week-selector {
+            margin-bottom: 30px;
+        }
+        .week-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .week-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .week-btn {
+            padding: 14px 24px;
+            background: #3a7bd5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .week-btn:hover {
+            background: #00d2ff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .week-btn.active {
+            background: #b21f1f;
+            transform: scale(1.05);
+        }
+        .quiz-container {
+            display: none;
+        }
+        .question-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3a7bd5;
+        }
+        .question-number {
+            font-weight: bold;
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+        .option {
+            padding: 14px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option:hover {
+            background: #e9ecef;
+        }
+        .option.selected {
+            background: #d1ecf1;
+            border-color: #0dcaf0;
+        }
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f1f8ff;
+            border-radius: 8px;
+            border-left: 4px solid #3a7bd5;
+            display: none;
+        }
+        .explanation-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1a2a6c;
+        }
+        .btn-check {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s;
+        }
+        .btn-check:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .btn-next {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s;
+        }
+        .btn-next:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
+        }
+        .btn-next.hidden {
+            display: none;
+        }
+        .progress-container {
+            margin: 20px 0;
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #3a7bd5;
+            border-radius: 10px;
+            transition: width 0.4s;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #1a2a6c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NPTEL IoT Assignment Checker</h1>
+            <div class="subtitle">Select a week to practice assignment questions</div>
+        </header>
+        
+        <div class="content">
+            <div class="week-selector">
+                <label>Select Week:</label>
+                <div class="week-buttons">
+                    <button class="week-btn" data-week="1">Week 1</button>
+                    <button class="week-btn" data-week="2">Week 2</button>
+                    <button class="week-btn" data-week="3">Week 3</button>
+                    <button class="week-btn" data-week="4">Week 4</button>
+                    <button class="week-btn" data-week="5">Week 5</button>
+                    <button class="week-btn" data-week="6">Week 6</button>
+                    <button class="week-btn" data-week="7">Week 7</button>
+                    <button class="week-btn" data-week="8">Week 8</button>
+                    <button class="week-btn" data-week="9">Week 9</button>
+                    <button class="week-btn" data-week="10">Week 10</button>
+                    <button class="week-btn" data-week="11">Week 11</button>
+                    <button class="week-btn" data-week="12">Week 12</button>
+                </div>
+            </div>
+            
+            <div id="quiz-container" class="quiz-container">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Question 1 of 15</div>
+                
+                <div id="questions-container">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
+                
+                <button class="btn-check" id="check-btn">Check Answer</button>
+                <button class="btn-next hidden" id="next-btn">Next Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data based on the PDFs
+        const quizData = {
+            1: [
+                {
+                    question: "IoT stands for____________.",
+                    options: ["Internet of Tasks", "Internet of Tuples", "Internet of Things", "None of these"],
+                    correct: 2,
+                    explanation: "The full form of IoT is “Internet of Things”. See lecture 1(Introduction to IoT – Part- I)@ 1:30"
+                },
+                {
+                    question: "Which of the following technologies have unified and has resulted in the evolution of IoT?",
+                    options: ["High-power embedded systems", "Super Computing", "Engine Technology", "None of these"],
+                    correct: 3,
+                    explanation: "Unification of technologies which has resulted in the advancement of IoT are – a. Low-power embedded systems b. Cloud Computing c. Big Data d. Machine Learning e. Networking See lecture 1(Introduction to IoT – Part- I)@ 5:54"
+                },
+                {
+                    question: "Which of the following are the enables of IoT?",
+                    options: ["RFID", "Nanotechnology", "Sensors", "All of these"],
+                    correct: 3,
+                    explanation: "The enables of IoT are – a. RFID b. Nanotechnology c. Sensors d. Smart Networks See lecture 2(Introduction to IoT – Part- I)@ 12:50"
+                },
+                {
+                    question: "Which of the following is NOT a function of an IoT Gateway?",
+                    options: ["Connects the IoT LAN to a WAN", "Can implement several LAN and WAN", "Both(a) and(b)", "Neither(a) Nor(b)"],
+                    correct: 3,
+                    explanation: "The functionalities of an IoT Gateway are – a. Connects the IoT LAN to a WAN b. Can implement several LAN and WAN c. Forwards packets between LAN and WAN on the IP layer See lecture 2(Introduction to IoT – Part- II)@ 3:09"
+                },
+                {
+                    question: "State whether the following statement is True or False. Statement: “The ITU vision is approaching reality as the present-day networked devices have outnumbered humans on earth.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "The ITU vision is approaching reality as the present-day networked devices have outnumbered humans on earth. See lecture 2(Introduction to IoT – Part- II)@ 02:35"
+                },
+                {
+                    question: "State True or False. Statement: “In Multi-homing, a node/network is connected to multiple networks for improved reliability.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "In multi-homing, a node/network is connected to multiple networks for improved reliability. See lecture 2(Introduction to IoT – Part- II)@ 15:22"
+                },
+                {
+                    question: "Which of the following are the features of an IoT Gateway?",
+                    options: ["A router connecting IoT LAN and WAN to Internet", "Can implement several LAN and WAN", "Forwards packets between LAN and WAN", "All of these"],
+                    correct: 3,
+                    explanation: "The following are the features of an IoT gateway – • A router connecting IoT LAN and WAN to the Internet • Can implement several LAN and WAN • Forwards packets between LAN and WAN See lecture 2(Introduction to IoT – Part- II)@ 04:00"
+                },
+                {
+                    question: "State True or False. Statement: “IoT Proxy performs active application layer functions between IoT nodes and other entities.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "IoT Proxy performs active application layer functions between IoT nodes and other entities. See lecture 2(Introduction to IoT – Part- II)@ 04:00"
+                },
+                {
+                    question: "The Gateway has a____________ address prefix, which can be used to identify them globally.",
+                    options: ["Non-unique", "Unique", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "The Gateway has a unique address prefix, which can be used to identify them globally. See lecture 2(Introduction to IoT – Part- II)@ 07:00"
+                },
+                {
+                    question: "The IPv4 notation uses___________________ number of bits to represent an address.",
+                    options: ["33", "32", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "The IPv4 notation uses 32 bits to represent an address. See lecture 2(Introduction to IoT – Part- II)@ 16:33"
+                },
+                {
+                    question: "The “Destination Address” field in the IPv4 header is of__________ bits in length.",
+                    options: ["32", "64", "128", "None of these"],
+                    correct: 0,
+                    explanation: "The IPv4 uses 32 bits to represent the “Destination Address”. See lecture 2(Introduction to IoT – Part- II)@ 17:53"
+                },
+                {
+                    question: "We can sense temperature using_____________?",
+                    options: ["An actuator", "A Transducer", "A processor", "None of these"],
+                    correct: 3,
+                    explanation: "We can sense temperature using a Sensor. See lecture 3(Sensing)@ 01:00"
+                },
+                {
+                    question: "State True or False. Statement: “A sensor is not only sensitive to the measured property, but it also influences the measured property.”",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "A sensor is only sensitive to the measured property. It does not influence the measured property. See lecture 3(Sensing)@ 12:11"
+                },
+                {
+                    question: "Based on the output, sensors are classified as_______________________.",
+                    options: ["Scalar and Vector", "Analog and Digital", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "Based on the output, sensors are classified as Digital and Analog. See lecture 3(Sensing)@ 13:05"
+                },
+                {
+                    question: "What is the full form of SMP in the context of IoT actuators?",
+                    options: ["Shape Master Polymers", "Switch Mode Power", "Sensor Making Polymer", "None of these"],
+                    correct: 3,
+                    explanation: "The full form of SMP is Shape Memory Polymers. See Page number – 111, Chapter- 5, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                }
+            ],
+            2: [
+                {
+                    question: "Based on functionality, MQTT is a_______ protocol.",
+                    options: ["Transport", "Data", "Semantic", "None of these"],
+                    correct: 1,
+                    explanation: "MQTT is a Data Protocol. See lecture 6(Basics of IoT Networking – Part II)@ 01:30"
+                },
+                {
+                    question: "MQTT is a___________-based lightweight protocol for use in conjunction with TCP/IP protocol.",
+                    options: ["Client-Server", "Publish-Subscribe", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "MQTT, is a publish-subscribe-based lightweight protocol for use in conjunction with TCP/IP protocol. See lecture 6(Basics of IoT Networking – Part II)@ 02:12"
+                },
+                {
+                    question: "A____________ controls the publish-subscribe messaging pattern in MQTT.",
+                    options: ["Publishers", "Subscribers", "Broker", "None of these"],
+                    correct: 2,
+                    explanation: "A Broker controls the publish-subscribe messaging pattern in MQTT. See lecture 6(Basics of IoT Networking – Part II)@ 03:31"
+                },
+                {
+                    question: "State True or False. Statement: “In MQTT, the Publishers are Lightweight Sensors.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "In MQTT, the Publishers are lightweight sensors. See lecture 6(Basics of IoT Networking – Part II)@ 04:49"
+                },
+                {
+                    question: "Which of the following is MQTT designed for?",
+                    options: ["Remote connections", "Limited bandwidth", "Small code footprint", "All of these"],
+                    correct: 3,
+                    explanation: "MQTT is designed for – a. Remote connections b. Limited bandwidth c. Small code footprint See lecture 6(Basics of IoT Networking – Part II)@ 03:23"
+                },
+                {
+                    question: "A__________ to which a client is subscribed is updated in the form of messages and distributed by the____________.",
+                    options: ["Topic, Message Broker", "Message Broker, Topic", "Message Broker, Message Broker", "Topic, Topic"],
+                    correct: 0,
+                    explanation: "A topic to which a client is subscribed is updated in the form of messages and distributed by the message broker. See lecture 6(Basics of IoT Networking – Part II)@ 04:00"
+                },
+                {
+                    question: "There are_______ number of methods in MQTT protocol.",
+                    options: ["5", "4", "6", "None of these"],
+                    correct: 0,
+                    explanation: "There are 5 number of methods in MQTT protocol. See lecture 6(Basics of IoT Networking – Part II)@ 05:49"
+                },
+                {
+                    question: "State True or False. Statement: “Publish/Subscribe in MQTT is event-driven and enables messages to be pushed to clients.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Publish/Subscribe in MQTT is event-driven and enables messages to be pushed to clients. See lecture 6(Basics of IoT Networking – Part II)@ 08:32"
+                },
+                {
+                    question: "SMQTT stands for?",
+                    options: ["Secure MQTT", "Safe MQTT", "Safety in MQTT", "Stored MQTT"],
+                    correct: 0,
+                    explanation: "SMQTT stands for Secure MQTT. See lecture 6(Basics of IoT Networking – Part II)@ 14:10"
+                },
+                {
+                    question: "Similar to HTTP, CoAP utilizes which of the following for operation?",
+                    options: ["GET", "PUT", "PUSH", "All of these"],
+                    correct: 3,
+                    explanation: "Similar to HTTP, CoAP utilizes GET, PUT, PUSH, DELETE message requests to retrieve, create, update, and delete, respectively. See lecture 7(Basics of IoT Networking – Part III)@ 08:24"
+                },
+                {
+                    question: "State True or False. Statement: “The CoAP protocol is a Client-Server interaction-based protocol that is asynchronous over a datagram-oriented transport protocol such as UDP.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "The CoAP protocol is a Client-Server interaction-based protocol that is asynchronous over a datagram-oriented transport protocol such as UDP. See lecture 7(Basics of IoT Networking – Part III)@ 00:30"
+                },
+                {
+                    question: "What is the full form of M2M in the context of IoT protocol?",
+                    options: ["Message to Message", "Man to Message", "Message to Man", "None of these"],
+                    correct: 3,
+                    explanation: "M2M stands for Machine to Machine. See lecture 7(Basics of IoT Networking – Part IV)@ 0:30"
+                },
+                {
+                    question: "What is the basic unit of data in the AMQP protocol?",
+                    options: ["Chunk", "Byte", "Slit", "None of these"],
+                    correct: 3,
+                    explanation: "In AMQP, the basic unit of data is called a frame. See lecture 8(Basics of IoT Networking – Part IV)@ 0:41"
+                },
+                {
+                    question: "State True or False. Statement: “The OSI model has 9 layers.”",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "The OSI model is a conceptual framework that divides any networked communication system into seven layers. See Page number – 10, Chapter- 1, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1(2021)"
+                },
+                {
+                    question: "The “Destination Address” in the IPv4 packet represents which of the following?",
+                    options: ["The destination node address of the packet", "The intermediate hop in the network", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 0,
+                    explanation: "The “Destination Address” in the IPv4 packet represents the address of the destination node in the network. See Page number – 18, Chapter- 1, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                }
+            ],
+            3: [
+                {
+                    question: "State True or False. Statement: “Wireless HART is the latest release of Highway Addressable Remote Transducer protocol.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "WirelessHART is the latest release of Highway Addressable Remote Transducer protocol. See lecture 11(Connectivity Technologies-III)@ 01:42"
+                },
+                {
+                    question: "State True or False. Statement: “Wired HART does not have a network layer.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Wired HART does not have a network layer. See lecture 11(Connectivity Technologies-III)@ 04:25"
+                },
+                {
+                    question: "Wireless HART physical layer is derived from______________ protocol?",
+                    options: ["802.15.4", "802.15.2", "802.15.3", "802.15.6"],
+                    correct: 0,
+                    explanation: "WirelessHART physical layer is derived from 802.15.4 protocol. See lecture 11(Connectivity Technologies-III)@ 06:00"
+                },
+                {
+                    question: "Wireless HART operates only in__________ GHz ISM band.",
+                    options: ["3.7", "4.8", "4.8", "None of these"],
+                    correct: 3,
+                    explanation: "HART operates only in the 2.4 GHz ISM band. See lecture 11(Connectivity Technologies-III)@ 06:00"
+                },
+                {
+                    question: "Wireless HART employs and exploits__________ channels of the ISM band to increase reliability.",
+                    options: ["13", "4", "2", "None of these"],
+                    correct: 3,
+                    explanation: "WirelessHART employs and exploits 15 channels of the ISM band to increase reliability. See lecture 11(Connectivity Technologies-III)@ 06:00"
+                },
+                {
+                    question: "State True or False. Statement: “Channel blacklisting identifies channels consistently affected by interference and adds them from use again.”",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Channel blacklisting identifies channels consistently affected by interference and removes them from use. See lecture 11(Connectivity Technologies-III)@ 07:05"
+                },
+                {
+                    question: "The Wireless HART incorporates____________ and____________ to increase the reliability and security of the network.",
+                    options: ["Channel hopping and Channel Blacklisting", "Channel Aggregating and Frequency Aggregating", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 0,
+                    explanation: "The WirelessHART incorporates Channel hopping and channel blacklisting to increase the reliability and security of the network. See lecture 11(Connectivity Technologies-III)@ 07:30"
+                },
+                {
+                    question: "State whether the following statement is True or False Statement: “Wireless HART protocol relies on Mesh Networking for its communication, and each device is primed to forward packets from every other device.”.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "WirelessHART protocol relies on Mesh Networking for its communication, and each device is primed to forward packets from every other device. See lecture 11(Connectivity Technologies-III)@ 09:00"
+                },
+                {
+                    question: "State True or False. Statement: “ZigBee protocol does not feature channel hopping at all.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "ZigBee protocol does not feature channel hopping at all. See lecture 11(Connectivity Technologies-III)@ 14:55"
+                },
+                {
+                    question: "NFC is designed for use by devices within________________ to each other.",
+                    options: ["Close proximity", "Anywhere on the globe", "A small building", "None of these"],
+                    correct: 0,
+                    explanation: "NFC is designed for use by devices within close proximity to each other. See lecture 11(Connectivity Technologies-III)@ 17:47"
+                },
+                {
+                    question: "NFC are of________ types?",
+                    options: ["2", "3", "1", "None of these"],
+                    correct: 0,
+                    explanation: "NFC are of 2 types. See lecture 11(Connectivity Technologies-III)@ 18:47"
+                },
+                {
+                    question: "State True or False. Statement: “Smartphones are an example of active NFC devices.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Smartphones are an example of active NFC devices. See lecture 11(Connectivity Technologies-III)@ 18:47"
+                },
+                {
+                    question: "Bluetooth technology is based on_________________.",
+                    options: ["HART", "ZigBee", "Ad-hoc piconets", "None of these"],
+                    correct: 2,
+                    explanation: "Bluetooth technology is based on Ad-hoc piconets. See lecture 12(Connectivity Technologies-IV)@ 02:30"
+                },
+                {
+                    question: "State whether the following statement is true or false. Statement: The Link Manager Protocol in Bluetooth manages the establishment, authentication, link configuration.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "The Link Manager Protocol in Bluetooth manages the establishment, authentication, link configuration. See Page number – 157, Chapter- 7, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                },
+                {
+                    question: "Zigbee commonly uses__________data rate.",
+                    options: ["250 Mbps", "260 kbps", "260 Mbps", "None of these"],
+                    correct: 3,
+                    explanation: "Zigbee commonly uses a 250 kbps data rate. See Page number – 131, Chapter- 7, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                }
+            ],
+            4: [
+                {
+                    question: "Based on functionality, MQTT is a_______ protocol.",
+                    options: ["Transport", "Data", "Semantic", "None of these"],
+                    correct: 1,
+                    explanation: "MQTT is a Data Protocol. See lecture 6(Basics of IoT Networking – Part II)@ 01:30"
+                },
+                {
+                    question: "MQTT is a___________-based lightweight protocol for use in conjunction with TCP/IP protocol.",
+                    options: ["Client-Server", "Publish-Subscribe", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "MQTT, is a publish-subscribe-based lightweight protocol for use in conjunction with TCP/IP protocol. See lecture 6(Basics of IoT Networking – Part II)@ 02:12"
+                },
+                {
+                    question: "A____________ controls the publish-subscribe messaging pattern in MQTT.",
+                    options: ["Publishers", "Subscribers", "Broker", "None of these"],
+                    correct: 2,
+                    explanation: "A Broker controls the publish-subscribe messaging pattern in MQTT. See lecture 6(Basics of IoT Networking – Part II)@ 03:31"
+                },
+                {
+                    question: "State True or False. Statement: “In MQTT, the Publishers are Lightweight Sensors.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "In MQTT, the Publishers are lightweight sensors. See lecture 6(Basics of IoT Networking – Part II)@ 04:49"
+                },
+                {
+                    question: "Which of the following is MQTT designed for?",
+                    options: ["Remote connections", "Limited bandwidth", "Small code footprint", "All of these"],
+                    correct: 3,
+                    explanation: "MQTT is designed for – a. Remote connections b. Limited bandwidth c. Small code footprint See lecture 6(Basics of IoT Networking – Part II)@ 03:23"
+                },
+                {
+                    question: "A__________ to which a client is subscribed is updated in the form of messages and distributed by the____________.",
+                    options: ["Topic, Message Broker", "Message Broker, Topic", "Message Broker, Message Broker", "Topic, Topic"],
+                    correct: 0,
+                    explanation: "A topic to which a client is subscribed is updated in the form of messages and distributed by the message broker. See lecture 6(Basics of IoT Networking – Part II)@ 04:00"
+                },
+                {
+                    question: "There are_______ number of methods in MQTT protocol.",
+                    options: ["5", "4", "6", "None of these"],
+                    correct: 0,
+                    explanation: "There are 5 number of methods in MQTT protocol. See lecture 6(Basics of IoT Networking – Part II)@ 05:49"
+                },
+                {
+                    question: "State True or False. Statement: “Publish/Subscribe in MQTT is event-driven and enables messages to be pushed to clients.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Publish/Subscribe in MQTT is event-driven and enables messages to be pushed to clients. See lecture 6(Basics of IoT Networking – Part II)@ 08:32"
+                },
+                {
+                    question: "SMQTT stands for?",
+                    options: ["Secure MQTT", "Safe MQTT", "Safety in MQTT", "Stored MQTT"],
+                    correct: 0,
+                    explanation: "SMQTT stands for Secure MQTT. See lecture 6(Basics of IoT Networking – Part II)@ 14:10"
+                },
+                {
+                    question: "Similar to HTTP, CoAP utilizes which of the following for operation?",
+                    options: ["GET", "PUT", "PUSH", "All of these"],
+                    correct: 3,
+                    explanation: "Similar to HTTP, CoAP utilizes GET, PUT, PUSH, DELETE message requests to retrieve, create, update, and delete, respectively. See lecture 7(Basics of IoT Networking – Part III)@ 08:24"
+                },
+                {
+                    question: "State True or False. Statement: “The CoAP protocol is a Client-Server interaction-based protocol that is asynchronous over a datagram-oriented transport protocol such as UDP.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "The CoAP protocol is a Client-Server interaction-based protocol that is asynchronous over a datagram-oriented transport protocol such as UDP. See lecture 7(Basics of IoT Networking – Part III)@ 00:30"
+                },
+                {
+                    question: "What is the full form of M2M in the context of IoT protocol?",
+                    options: ["Message to Message", "Man to Message", "Message to Man", "None of these"],
+                    correct: 3,
+                    explanation: "M2M stands for Machine to Machine. See lecture 7(Basics of IoT Networking – Part IV)@ 0:30"
+                },
+                {
+                    question: "What is the basic unit of data in the AMQP protocol?",
+                    options: ["Chunk", "Byte", "Slit", "None of these"],
+                    correct: 3,
+                    explanation: "In AMQP, the basic unit of data is called a frame. See lecture 8(Basics of IoT Networking – Part IV)@ 0:41"
+                },
+                {
+                    question: "State True or False. Statement: “The OSI model has 9 layers.”",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "The OSI model is a conceptual framework that divides any networked communication system into seven layers. See Page number – 10, Chapter- 1, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1(2021)"
+                },
+                {
+                    question: "The “Destination Address” in the IPv4 packet represents which of the following?",
+                    options: ["The destination node address of the packet", "The intermediate hop in the network", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 0,
+                    explanation: "The “Destination Address” in the IPv4 packet represents the address of the destination node in the network. See Page number – 18, Chapter- 1, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                }
+            ],
+            5: [
+                {
+                    question: "IoT stands for____________.",
+                    options: ["Internet of Tasks", "Internet of Tuples", "Internet of Things", "None of these"],
+                    correct: 2,
+                    explanation: "The full form of IoT is “Internet of Things”. See lecture 1(Introduction to IoT – Part- I)@ 1:30"
+                },
+                {
+                    question: "Which of the following technologies have unified and has resulted in the evolution of IoT?",
+                    options: ["High-power embedded systems", "Super Computing", "Engine Technology", "None of these"],
+                    correct: 3,
+                    explanation: "Unification of technologies which has resulted in the advancement of IoT are – a. Low-power embedded systems b. Cloud Computing c. Big Data d. Machine Learning e. Networking See lecture 1(Introduction to IoT – Part- I)@ 5:54"
+                },
+                {
+                    question: "Which of the following are the enables of IoT?",
+                    options: ["RFID", "Nanotechnology", "Sensors", "All of these"],
+                    correct: 3,
+                    explanation: "The enables of IoT are – a. RFID b. Nanotechnology c. Sensors d. Smart Networks See lecture 2(Introduction to IoT – Part- I)@ 12:50"
+                },
+                {
+                    question: "Which of the following is NOT a function of an IoT Gateway?",
+                    options: ["Connects the IoT LAN to a WAN", "Can implement several LAN and WAN", "Both(a) and(b)", "Neither(a) Nor(b)"],
+                    correct: 3,
+                    explanation: "The functionalities of an IoT Gateway are – a. Connects the IoT LAN to a WAN b. Can implement several LAN and WAN c. Forwards packets between LAN and WAN on the IP layer See lecture 2(Introduction to IoT – Part- II)@ 3:09"
+                },
+                {
+                    question: "State whether the following statement is True or False. Statement: “The ITU vision is approaching reality as the present-day networked devices have outnumbered humans on earth.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "The ITU vision is approaching reality as the present-day networked devices have outnumbered humans on earth. See lecture 2(Introduction to IoT – Part- II)@ 02:35"
+                },
+                {
+                    question: "State True or False. Statement: “In Multi-homing, a node/network is connected to multiple networks for improved reliability.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "In multi-homing, a node/network is connected to multiple networks for improved reliability. See lecture 2(Introduction to IoT – Part- II)@ 15:22"
+                },
+                {
+                    question: "Which of the following are the features of an IoT Gateway?",
+                    options: ["A router connecting IoT LAN and WAN to Internet", "Can implement several LAN and WAN", "Forwards packets between LAN and WAN", "All of these"],
+                    correct: 3,
+                    explanation: "The following are the features of an IoT gateway – • A router connecting IoT LAN and WAN to the Internet • Can implement several LAN and WAN • Forwards packets between LAN and WAN See lecture 2(Introduction to IoT – Part- II)@ 04:00"
+                },
+                {
+                    question: "State True or False. Statement: “IoT Proxy performs active application layer functions between IoT nodes and other entities.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "IoT Proxy performs active application layer functions between IoT nodes and other entities. See lecture 2(Introduction to IoT – Part- II)@ 04:00"
+                },
+                {
+                    question: "The Gateway has a____________ address prefix, which can be used to identify them globally.",
+                    options: ["Non-unique", "Unique", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "The Gateway has a unique address prefix, which can be used to identify them globally. See lecture 2(Introduction to IoT – Part- II)@ 07:00"
+                },
+                {
+                    question: "The IPv4 notation uses___________________ number of bits to represent an address.",
+                    options: ["33", "32", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "The IPv4 notation uses 32 bits to represent an address. See lecture 2(Introduction to IoT – Part- II)@ 16:33"
+                },
+                {
+                    question: "The “Destination Address” field in the IPv4 header is of__________ bits in length.",
+                    options: ["32", "64", "128", "None of these"],
+                    correct: 0,
+                    explanation: "The IPv4 uses 32 bits to represent the “Destination Address”. See lecture 2(Introduction to IoT – Part- II)@ 17:53"
+                },
+                {
+                    question: "We can sense temperature using_____________?",
+                    options: ["An actuator", "A Transducer", "A processor", "None of these"],
+                    correct: 3,
+                    explanation: "We can sense temperature using a Sensor. See lecture 3(Sensing)@ 01:00"
+                },
+                {
+                    question: "State True or False. Statement: “A sensor is not only sensitive to the measured property, but it also influences the measured property.”",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "A sensor is only sensitive to the measured property. It does not influence the measured property. See lecture 3(Sensing)@ 12:11"
+                },
+                {
+                    question: "Based on the output, sensors are classified as_______________________.",
+                    options: ["Scalar and Vector", "Analog and Digital", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 1,
+                    explanation: "Based on the output, sensors are classified as Digital and Analog. See lecture 3(Sensing)@ 13:05"
+                },
+                {
+                    question: "What is the full form of SMP in the context of IoT actuators?",
+                    options: ["Shape Master Polymers", "Switch Mode Power", "Sensor Making Polymer", "None of these"],
+                    correct: 3,
+                    explanation: "The full form of SMP is Shape Memory Polymers. See Page number – 111, Chapter- 5, Book- Introduction to IoT, Authors – Sudip Misra, Anandarup Mukherjee, and Arij it Roy, Publisher – Cambridge University Press, Edition – 1 (2021)"
+                }
+            ],
+            6: [
+                {
+                    question: "State True or False. Statement: “Python is popular for embedded application development as it is a very lightweight programming language.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Python is popular for embedded application development as it is a very lightweight programming language. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- I@ 1:22)"
+                },
+                {
+                    question: "State True or False. Statement: “Python does not support strict rules for syntax.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Python does not support strict rules for syntax. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- I@ 03:38)"
+                },
+                {
+                    question: "_________ is a software that is used to write codes, integrate several modules and libraries.",
+                    options: ["IDE", "Module", "API", "None of these"],
+                    correct: 0,
+                    explanation: "IDE is a software that is used to write codes, integrate several modules and libraries. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- I@ 05:02)"
+                },
+                {
+                    question: "State True or False. Statement: “To indicate different blocks of code, Python follows rigid indentation.”",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "To indicate different blocks of code, Python follows rigid indentation. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- I@ 7::29)"
+                },
+                {
+                    question: "What is the output of the following line of code in Python? >>> print “Hi, Welcome to python!”",
+                    options: ["Hi, Welcome to python!", "“Hi, Welcome to python!”", "Hi, Welcome to python", "None of these"],
+                    correct: 0,
+                    explanation: "The output of the following line of code in Python- >>> print “Hi, Welcome to python!” Output: Hi, Welcome to python! (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- II@ 07:31)"
+                },
+                {
+                    question: "Which of the following is a mode to open a file in Python?",
+                    options: ["Read mode", "Write mode", "Append mode", "All of these"],
+                    correct: 3,
+                    explanation: "The four basic modes to open a file in python are – a. Read mode b. Write mode c. Append mode d. Both read and write mode (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- II@ 03:00)"
+                },
+                {
+                    question: "State whether the following command to install the PIL library is correct or not. sudo p ip get p illow",
+                    options: ["Correct", "Incorrect"],
+                    correct: 1,
+                    explanation: "The command to install the PIL library is sudo p ip install p illow. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- II@ 17:40)"
+                },
+                {
+                    question: "How many data types are these in Python?",
+                    options: ["5", "7", "8", "None of these"],
+                    correct: 0,
+                    explanation: "There are 5 data types in Python. (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- II@9:40)"
+                },
+                {
+                    question: "State whether the following controlling statement structure is valid in Python or not. if(condition): statement 1 statement2 elif(condition) statement 1 statement 2 else statement 1 statement 2",
+                    options: ["Invalid", "Valid"],
+                    correct: 0,
+                    explanation: "Invalid as the colons are missing in elif and else statements. (Please refer to lecture INTRODUCTION TO RASPBERRY PI-I@29:37)"
+                },
+                {
+                    question: "Can we configure Raspberry Pi as a Web Server?",
+                    options: ["Yes", "No"],
+                    correct: 0,
+                    explanation: "We can configure Raspberry Pi as a Web Server. See lecture INTRODUCTION TO RASPBERRY PI-I@ 02:46"
+                },
+                {
+                    question: "What is the frequency of the Raspberry Pi Zero CPU?",
+                    options: ["2.1 GHz", "1.1 GHz", "3.1 Ghz", "None of these"],
+                    correct: 3,
+                    explanation: "The frequency of the Raspberry Pi Zero CPU is 1 GHz. See lecture INTRODUCTION TO RASPBERRY PI-II@ 05:05"
+                },
+                {
+                    question: "What does the following line of code do? sudo ap t-get install python-rp i.gp io",
+                    options: ["It installs the Raspberry Pi GPIO library", "It installs the Python essentials for GPIO", "Both(a) and(b)", "Neither(a) nor(b)"],
+                    correct: 0,
+                    explanation: "It installs the Raspberry Pi GPIO library. See lecture IMPLEMENTATION OF IOT WITH RASPBERRY PI-II@ 07:35"
+                },
+                {
+                    question: "Which command Exits the nano editor?",
+                    options: ["Ctrl+ X", "Ctrl+ O", "Ctrl+ K", "None of these"],
+                    correct: 0,
+                    explanation: "Ctrl+ O exits the nano editor. See lecture IMPLEMENTATION OF IOT WITH RASPBERRY PI-II@ 10:20"
+                },
+                {
+                    question: "What does the following line of code do? GPIO.outp ut(11,True)",
+                    options: ["Sets GPIO 11 as output pin", "Turns on GPIO pin 11", "Neither(a) nor(b)", "Both(a) and(b)"],
+                    correct: 1,
+                    explanation: "Turns on GPIO pin 11 (Please refer to lecture INTRODUCTION TO PYTHON PROGRAMMING- II@ 11:18)"
+                },
+                {
+                    question: "What does the following line of code do? rasp istill-o image.jpg",
+                    options: ["Captures video feed", "Captures still image", "Both(a) and(b)", "None of these"],
+                    correct: 1,
+                    explanation: "Captures still image. (Please refer to lecture INTRODUCTION TO RASPBERYY PI-II@ 19:29)"
+                }
+            ],
+            7: [
+                {
+                    question: "Adafruit provides a library to work with DHT22 Sensor.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Adafruit provides a library to work with DHT22 Sensor.(Please refer to lecture Implementation of IoT with Raspberry Pi- II@ 4:41)"
+                },
+                {
+                    question: "Which python library is used for plotting the data in 2D.",
+                    options: ["List", "Numpy", "Pandas", "Matplotlib"],
+                    correct: 3,
+                    explanation: "Matplotlib is a python library used for plotting the data in 2D.(Please refer to lecture Implementation of IoT with Raspberry Pi- III@ 12:13)"
+                },
+                {
+                    question: "Fill in the blanks. __________ creates a two-way communication between two nodes in a network.",
+                    options: ["Peer-to-Peer Network", "Parallel Programming", "Socket Programming", "None of these"],
+                    correct: 2,
+                    explanation: "Socket Programming creates a two-way communication between two nodes in a network.(Please refer to lecture Implementation of IoT with Raspberry Pi- II@ 6:02)"
+                },
+                {
+                    question: "What are the two main challenges of SDN?",
+                    options: ["File placement and Node placement", "Rule placement and Controller placement", "Both a and b", "Neither a nor b"],
+                    correct: 1,
+                    explanation: "Rule placement and Controller placement are the two main challenges of SDN.(Please refer to lecture Software Defined Networking- Part- I@ 16:49)"
+                },
+                {
+                    question: "IoT cannot control the network remotely.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "IoT can control the network remotely.(Please refer to lecture Implementation of IoT with Raspberry Pi- II@ 1:53)"
+                },
+                {
+                    question: "Which of the following is a part of data processing?",
+                    options: ["Splitting", "Filtering", "Neither a nor b", "Both a and b"],
+                    correct: 3,
+                    explanation: "Splitting and Filtering are both types of data processing.(Please refer to lecture Implementation of IoT with Raspberry Pi- III@ 7:20)"
+                },
+                {
+                    question: "What is introduced if a controller is down in SDN?",
+                    options: ["Backup controller", "Intro controller", "Both a and b", "Neither a nor b"],
+                    correct: 0,
+                    explanation: "Backup controller is introduced if a controller is down in SDN.(Please refer to lecture Software Defined Networking- Part- II@ 8:29)"
+                },
+                {
+                    question: "Ion() is used to add a subplot in the data plotting in python.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "subplot() is used to add a subplot in the data plotting in python.(Please refer to lecture Implementation of IoT with Raspberry Pi- III@ 23:28)"
+                },
+                {
+                    question: "Matplotlib cannot plot in 2D.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Matplotlib can plot in 2D.(Please refer to lecture Implementation of IoT with Raspberry Pi- III@ 11:54)"
+                },
+                {
+                    question: "How many rules are deleted from the switch at hard timeout?",
+                    options: ["None", "All", "Half", "Some"],
+                    correct: 1,
+                    explanation: "All rules are deleted from the switch at hard timeout. See lecture 33@ 25:02"
+                },
+                {
+                    question: "Are controllers able to handle all incoming requests from switches?",
+                    options: ["Yes", "No"],
+                    correct: 0,
+                    explanation: "Controllers must be able to handle all incoming requests from switches. See lecture 34@ 4:05"
+                },
+                {
+                    question: "Are Indigo and LINC Open source?",
+                    options: ["Yes", "No"],
+                    correct: 0,
+                    explanation: "Indigo and LINC are both open source. See lecture 33@ 26:43"
+                },
+                {
+                    question: "Which of the following forward the sensed data based on the ID of the source node?",
+                    options: ["ID-centric data forwarding", "Northbound IDs", "Both a and b", "Neither a nor b"],
+                    correct: 0,
+                    explanation: "ID-centric data forwarding forward the sensed data based on the ID of the source node. See lecture 35@ 09:49"
+                },
+                {
+                    question: "How many requests can a controller handle through a single thread?",
+                    options: ["200/sec", "50/sec", "Neither a nor b", "Both a and b"],
+                    correct: 0,
+                    explanation: "A controller can handle 200 requests in a second through a single thread.(Please refer to lecture 34@ 3:47)"
+                },
+                {
+                    question: "Switches that forward the traffic in a distributed manner have a global view of the network.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Switches that forward the traffic in a distributed manner do not have a global view of the network.(Please refer to lecture 33@ 7:04)"
+                }
+            ],
+            8: [
+                {
+                    question: "Which of the following abstracts the physical resources from the network services?",
+                    options: ["Path management", "Routing protocols", "Flow-table paradigm", "Network Virtualization"],
+                    correct: 3,
+                    explanation: "Network Virtualization abstracts the physical resources from the network services(Please refer Lecture 36@3:59)"
+                },
+                {
+                    question: "In which of these, exact match rules are useful?",
+                    options: ["Elephant Flow", "Mice-flow", "Both a and b", "Neither a nor b"],
+                    correct: 0,
+                    explanation: "In Elephant Flow, exact match rules are useful.(Please refer Lecture 36@17:45)"
+                },
+                {
+                    question: "Which of these takes last k-th location instances to predict the next location?",
+                    options: ["Odin-k Markov Predictor", "Order-k Markov interpreter", "Order-k Markov predictor", "None of these"],
+                    correct: 2,
+                    explanation: "Order-k Markov predictor takes last k-th location instances to predict the next location.(Please refer Lecture 36@15:47)"
+                },
+                {
+                    question: "Which of the following is an important issue due to the dynamic nature of the IoT network?",
+                    options: ["Match rules", "Load rules", "Match balancing", "Load Balancing"],
+                    correct: 3,
+                    explanation: "Load Balancing is an important issue due to the dynamic nature of the IoT network.(Please refer Lecture 36@17:09)"
+                },
+                {
+                    question: "Fill in the blank. ___________ refers to heterogeneous computing nodes distributed over a wide area to perform very large tasks.",
+                    options: ["Cluster Computing", "Utility Computing", "Grid Computing", "None of these"],
+                    correct: 2,
+                    explanation: "Grid Computing refers to heterogeneous computing nodes distributed over a wide area to perform very large tasks.(Please refer Lecture 37 @6:48)"
+                },
+                {
+                    question: "Which of the following is a type of service model in cloud computing?",
+                    options: ["SaaS", "PaaS", "IaaS", "All of these"],
+                    correct: 3,
+                    explanation: "All these are a type of service model in cloud computing.(Please refer Lecture 37@25:18)"
+                },
+                {
+                    question: "Which of the following statements are true about SaaS? Statement I: Applications are available as ‘services’. Statement II: End-users do not have the control of the cloud infrastructure. Statement III: Services can be accessed by various types of client devices.",
+                    options: ["Statements I and II", "Statements I and III", "Statements II and III", "Statement I, II and III"],
+                    correct: 3,
+                    explanation: "All the three statements are correct for the SaaS. Applications are available as ‘services’. End-users do not have the control of the cloud infrastructure. Services can be accessed by various types of client devices. (Please refer Lecture 37@26:01)"
+                },
+                {
+                    question: "Fill in the blank. ____________ means independent of device or location.",
+                    options: ["Scalable", "Reliability", "Agile", "Ubiquitous"],
+                    correct: 3,
+                    explanation: "Ubiquitous means independent of device or location. (Please refer Lecture 37@18:06)"
+                },
+                {
+                    question: "Fill in the blank. ____________ provides the platform which allows developers to create applications which can be offered as a service via the Internet.",
+                    options: ["Software-as-a-Service", "Storage-as-a-Service", "Network-as-a-Service", "Platform-as-a-Service"],
+                    correct: 3,
+                    explanation: "Platform-as-a-Service provides the platform which allows developers to create applications which can be offered as a service via the Internet. (Please refer Lecture 38@11:35)"
+                },
+                {
+                    question: "Fill in the blank. ‘Dynamic scaling of the required infrastructure resources’ is a feature of which of the essential characteristic of cloud computing.",
+                    options: ["Scalability", "Availability", "Synchronization", "None of these"],
+                    correct: 0,
+                    explanation: "‘Dynamic scaling of the required infrastructure resources’ is a feature of scalability characteristics of cloud computing. (Please refer Lecture 38@7:41)"
+                },
+                {
+                    question: "Software-as-a-Service does not support a fully pay-as-you-go model.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Software-as-a-Service supports a fully pay-as-you-go model. (Please refer Lecture 38@13:25)"
+                },
+                {
+                    question: "What is the meaning of the Host Level Security at PaaS and SaaS level?",
+                    options: ["Hide host OS from the end users", "Security responsibilities are transformed to Cloud service providers", "Both a and b", "Neither a nor b"],
+                    correct: 2,
+                    explanation: "Both a and b. (Please refer Lecture 39@19:23)"
+                },
+                {
+                    question: "Which of the following is an objective of Data Security?",
+                    options: ["Confidentiality", "Integrity", "Availability", "All of these"],
+                    correct: 3,
+                    explanation: "The three objectives of Data Security are Confidentiality, integrity and availability.(Please refer Lecture 39@22:39)"
+                },
+                {
+                    question: "CloudSim provides a cloud environment.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "CloudSim provides a cloud environment..(Please refer Lecture 40@8:27)"
+                },
+                {
+                    question: "Which of the following is true about GreenCloud?",
+                    options: ["GreenCloud cannot monitor the energy consumption of servers, switches, etc.", "GreenCloud was developed as an extension of GO.", "Neither a nor b", "Both a and b"],
+                    correct: 2,
+                    explanation: "GreenCloud monitors the energy consumption of servers, switches, etc. It was developed as an extension of NS2. (Please refer Lecture 40@16:25)"
+                }
+            ],
+            9: [
+                {
+                    question: "Smart city is an_____________ system.",
+                    options: ["local", "rural", "home", "urban"],
+                    correct: 3,
+                    explanation: "Smart city is an urban system.(Please refer Lecture 46@8:02)"
+                },
+                {
+                    question: "Which of the following is an area of focus in smart parking lots?",
+                    options: ["Auto-routing of vehicles", "Auto-charging of vehicles", "Detection of slots in parking lots", "All of these"],
+                    correct: 3,
+                    explanation: "Auto-routing of vehicles, auto-charging of vehicles and detection of slots in parking lots.(Please refer Lecture 46@19:42)"
+                },
+                {
+                    question: "Select the statement(s) that are true for smart health. Statement I: Smart health is low-cost and portable. Statement II: Smart health allows remote check-ups and diagnosis. Statement III: Smart health is effortless health monitoring.",
+                    options: ["Statement I", "Statement II", "Statements I, II, and III", "None of these"],
+                    correct: 2,
+                    explanation: "Smart health is low-cost, portable and effortless health monitoring. Smart health allows remote check-ups and diagnosis.(Please refer Lecture 46@26:12)"
+                },
+                {
+                    question: "What refers to combining information from multiple sensor sources?",
+                    options: ["Information Collection", "Multi-sensor deployment", "Multi-sensor dissemination", "Multi-sensor data fusion"],
+                    correct: 3,
+                    explanation: "Multi-sensor data fusion combines information from multiple sensor sources.(Please refer Lecture 47@6:52)"
+                },
+                {
+                    question: "The ensemble of all the decisions occur at the __________.",
+                    options: ["Feature level", "Decision level", "Pixel level", "All of these"],
+                    correct: 1,
+                    explanation: "The ensemble of all the decisions occur at the Decision level.(Please refer Lecture 47@11:10)"
+                },
+                {
+                    question: "The smart parking reduces traffic__________.",
+                    options: ["mobility", "area", "analysis", "congestion"],
+                    correct: 3,
+                    explanation: "The smart parking reduces traffic congestion.(Please refer Lecture 47@16:58)"
+                },
+                {
+                    question: "Which of the following is the correct full form of DLNA Standards for HAN?",
+                    options: ["Digital Lifestyle Network Alliance", "Digital Living Network Alliance", "Digital Lifestyle Network Algorithm", "None of these"],
+                    correct: 1,
+                    explanation: "DLNA stands for Digital Living Network Alliance standards.(Please refer Lecture 48@13:49)"
+                },
+                {
+                    question: "Which of the following is a type of sensing?",
+                    options: ["Stationary", "Mobile", "Both a and b", "Neither a nor b"],
+                    correct: 2,
+                    explanation: "Stationary and Mobile are two types of sensing.(Please refer Lecture 47@19:36)"
+                },
+                {
+                    question: "Smart home infrastructure cannot include wireless devices.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Smart home infrastructure can include wireless/wired devices. (Please refer Lecture 48@6:17)"
+                },
+                {
+                    question: "Which of the following is a layer of Zigbee?",
+                    options: ["Physical layer", "MAC Layer", "Network Layer", "All of these"],
+                    correct: 3,
+                    explanation: "The layers of Zigbee are Physical layer, MAC Layer, Network Layer are all the layers of Zigbee.(Please refer Lecture 48@16:23)"
+                },
+                {
+                    question: "Which of the following is a phase of ICV development?",
+                    options: ["Based on 2G", "Based on 4G LTE", "Vehicles connected to cloud", "All of these"],
+                    correct: 3,
+                    explanation: "The phases of ICV development: Phase 1: Based on 2G, Phase 2: Based on 4G LTE, Phase 3: Vehicles connected to cloud (Please refer Lecture 50@12:28)"
+                },
+                {
+                    question: "Which of the following is a property of V2X?",
+                    options: ["Restricted to a single source", "Distributed architecture", "Both of a and b", "Neither a nor b"],
+                    correct: 1,
+                    explanation: "V2X follows a distributed architecture.(Please refer Lecture 49@12:06)"
+                },
+                {
+                    question: "The vehicles cannot be mobile in the Ad-hoc domain of VANET.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "The vehicles are mobile in the Ad-hoc domain of VANET.(Please refer Lecture 50@16:59)"
+                },
+                {
+                    question: "Which of the following is a domain of VANET?",
+                    options: ["In-vehicle", "Ad-hoc", "Both a and b", "Neither a nor b"],
+                    correct: 2,
+                    explanation: "Both of the In-vehicle and Ad-hoc are the two domains of VANETs.(Please refer Lecture 50@14:36)"
+                },
+                {
+                    question: "Fill in the blank. ICV is based on________.",
+                    options: ["Dedicated Short Range Communication", "Directed Short Range Communication", "Dedicated Small Range Communication", "All of these"],
+                    correct: 0,
+                    explanation: "ICV is based on Dedicated Short Range Communication. (Please refer Lecture 50@7:22)"
+                }
+            ],
+            10: [
+                {
+                    question: "Smart city is an_____________ system.",
+                    options: ["local", "rural", "home", "urban"],
+                    correct: 3,
+                    explanation: "Smart city is an urban system.(Please refer Lecture 46@8:02)"
+                },
+                {
+                    question: "Which of the following is an area of focus in smart parking lots?",
+                    options: ["Auto-routing of vehicles", "Auto-charging of vehicles", "Detection of slots in parking lots", "All of these"],
+                    correct: 3,
+                    explanation: "Auto-routing of vehicles, auto-charging of vehicles and detection of slots in parking lots.(Please refer Lecture 46@19:42)"
+                },
+                {
+                    question: "Select the statement(s) that are true for smart health. Statement I: Smart health is low-cost and portable. Statement II: Smart health allows remote check-ups and diagnosis. Statement III: Smart health is effortless health monitoring.",
+                    options: ["Statement I", "Statement II", "Statements I, II, and III", "None of these"],
+                    correct: 2,
+                    explanation: "Smart health is low-cost, portable and effortless health monitoring. Smart health allows remote check-ups and diagnosis.(Please refer Lecture 46@26:12)"
+                },
+                {
+                    question: "What refers to combining information from multiple sensor sources?",
+                    options: ["Information Collection", "Multi-sensor deployment", "Multi-sensor dissemination", "Multi-sensor data fusion"],
+                    correct: 3,
+                    explanation: "Multi-sensor data fusion combines information from multiple sensor sources.(Please refer Lecture 47@6:52)"
+                },
+                {
+                    question: "The ensemble of all the decisions occur at the __________.",
+                    options: ["Feature level", "Decision level", "Pixel level", "All of these"],
+                    correct: 1,
+                    explanation: "The ensemble of all the decisions occur at the Decision level.(Please refer Lecture 47@11:10)"
+                },
+                {
+                    question: "The smart parking reduces traffic__________.",
+                    options: ["mobility", "area", "analysis", "congestion"],
+                    correct: 3,
+                    explanation: "The smart parking reduces traffic congestion.(Please refer Lecture 47@16:58)"
+                },
+                {
+                    question: "Which of the following is the correct full form of DLNA Standards for HAN?",
+                    options: ["Digital Lifestyle Network Alliance", "Digital Living Network Alliance", "Digital Lifestyle Network Algorithm", "None of these"],
+                    correct: 1,
+                    explanation: "DLNA stands for Digital Living Network Alliance standards.(Please refer Lecture 48@13:49)"
+                },
+                {
+                    question: "Which of the following is a type of sensing?",
+                    options: ["Stationary", "Mobile", "Both a and b", "Neither a nor b"],
+                    correct: 2,
+                    explanation: "Stationary and Mobile are two types of sensing.(Please refer Lecture 47@19:36)"
+                },
+                {
+                    question: "Smart home infrastructure cannot include wireless devices.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Smart home infrastructure can include wireless/wired devices. (Please refer Lecture 48@6:17)"
+                },
+                {
+                    question: "Which of the following is a layer of Zigbee?",
+                    options: ["Physical layer", "MAC Layer", "Network Layer", "All of these"],
+                    correct: 3,
+                    explanation: "The layers of Zigbee are Physical layer, MAC Layer, Network Layer are all the layers of Zigbee.(Please refer Lecture 48@16:23)"
+                },
+                {
+                    question: "Which of the following is a phase of ICV development?",
+                    options: ["Based on 2G", "Based on 4G LTE", "Vehicles connected to cloud", "All of these"],
+                    correct: 3,
+                    explanation: "The phases of ICV development: Phase 1: Based on 2G, Phase 2: Based on 4G LTE, Phase 3: Vehicles connected to cloud (Please refer Lecture 50@12:28)"
+                },
+                {
+                    question: "Which of the following is a property of V2X?",
+                    options: ["Restricted to a single source", "Distributed architecture", "Both of a and b", "Neither a nor b"],
+                    correct: 1,
+                    explanation: "V2X follows a distributed architecture.(Please refer Lecture 49@12:06)"
+                },
+                {
+                    question: "The vehicles cannot be mobile in the Ad-hoc domain of VANET.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "The vehicles are mobile in the Ad-hoc domain of VANET.(Please refer Lecture 50@16:59)"
+                },
+                {
+                    question: "Which of the following is a domain of VANET?",
+                    options: ["In-vehicle", "Ad-hoc", "Both a and b", "Neither a nor b"],
+                    correct: 2,
+                    explanation: "Both of the In-vehicle and Ad-hoc are the two domains of VANETs.(Please refer Lecture 50@14:36)"
+                },
+                {
+                    question: "Fill in the blank. ICV is based on________.",
+                    options: ["Dedicated Short Range Communication", "Directed Short Range Communication", "Dedicated Small Range Communication", "All of these"],
+                    correct: 0,
+                    explanation: "ICV is based on Dedicated Short Range Communication. (Please refer Lecture 50@7:22)"
+                }
+            ],
+            11: [
+                {
+                    question: "What are some of the other names of the smart grids?",
+                    options: ["Energy internet", "Electricity with a hand", "Electrolyte", "All of these"],
+                    correct: 0,
+                    explanation: "Smart grids are also known as Electricity with a brain, Energy internet, and Electronet.(Please refer Lecture 51@8:33)"
+                },
+                {
+                    question: "Smart Grid follows which type of flow of energy?",
+                    options: ["Bidirectional", "Unidirectional", "Both a and b", "Neither a nor b"],
+                    correct: 0,
+                    explanation: "Smart grid follows bidirectional flow of energy.(Please refer Lecture 51@5:41)"
+                },
+                {
+                    question: "Which of the following is a benefit associated with smart grids for customers?",
+                    options: ["Reduced transmission of electricity", "Higher electricity rates", "Less security", "Different pricing options"],
+                    correct: 3,
+                    explanation: "Smart Grids provide different pricing options for customers, lower electricity rates and Improved security.(Please refer Lecture 51@16:33)"
+                },
+                {
+                    question: "Which of the following is a property of smart grid related to power system efficiency?",
+                    options: ["Power monitoring", "Asset Management", "Distribution automation", "All of these"],
+                    correct: 3,
+                    explanation: "Power monitoring, Asset Management and Distribution automation are all the properties of smart grid related to power system efficiency. (Please refer Lecture 51@22:21)"
+                },
+                {
+                    question: "Fill in the blank. In___________, a home can have power from distributed resources.",
+                    options: ["Peaking", "Islanding", "Neither a nor b", "Both a and b"],
+                    correct: 1,
+                    explanation: "In islanding, a home can have power from distributed resources.(Please refer Lecture 51@31:20)"
+                },
+                {
+                    question: "Which of the following aggregate the energy consumption or energy request of a certain geographical area?",
+                    options: ["DAUs", "Meter Data Management System", "Buffer", "None of these"],
+                    correct: 0,
+                    explanation: "DAUs aggregate the energy consumption or energy request of a certain geographical area.(Please refer Lecture 52@15:17)"
+                },
+                {
+                    question: "Which of the following statements are true about Dynamic System Attacks? Statement I: Replay attacks compromises sensors and monitors their outputs. Statement II: D-DIA can lead to a system collapse. Statement III: Covert attack is a closed loop version of replay attacks.",
+                    options: ["Statements I and II", "Statements I and III", "Statements II and III", "Statement I, II and III"],
+                    correct: 3,
+                    explanation: "Replay attacks compromises sensors and monitors their outputs. D-DIA can lead to a system collapse. Covert attack is a closed loop version of replay attacks.(Please refer Lecture 52@20:03)"
+                },
+                {
+                    question: "Fill in the blank. ____________ is performed by compromising the availability of the grid component.",
+                    options: ["Gateway", "Data injection attacks", "AMH", "Denial of service"],
+                    correct: 3,
+                    explanation: "Denial of service is performed by compromising the availability of the grid component.(Please refer Lecture 52@19:52)"
+                },
+                {
+                    question: "Fill in the blank. IIoT is a network of____________.",
+                    options: ["Physical objects", "Systems", "Platforms", "All of these"],
+                    correct: 3,
+                    explanation: "IIoT is a network of Physical objects, Systems and Platforms.(Please refer Lecture 52@14:46)"
+                },
+                {
+                    question: "Fill in the blank.____________ is based on a wrap and re-use approach.",
+                    options: ["Aot", "Pot", "ToII", "IIoT"],
+                    correct: 3,
+                    explanation: "IIoT is based on the wrap and re-use approach. (Please refer Lecture 53@9:51)"
+                },
+                {
+                    question: "Mechanized production is a part of the 4th Industrial Revolution.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Mechanized production is a part of the 1st Industrial Revolution.(Please refer Lecture 53@10:41)"
+                },
+                {
+                    question: "Which of the following happened in the 3rd Revolution?",
+                    options: ["Mass production", "IIoT", "Mechanized production", "None of these"],
+                    correct: 3,
+                    explanation: "Internet evolution and automation happened in the 3rd Revolution.(Please refer Lecture 53@10:06)"
+                },
+                {
+                    question: "Which of the following is used to improve the interoperability of different systems?",
+                    options: ["Standardization", "Optimization", "Monitoring", "None of these"],
+                    correct: 0,
+                    explanation: "Standardization improves the interoperability of different systems.(Please refer Lecture 54@16:09)"
+                },
+                {
+                    question: "Big data is characterized by 7 Vs.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "Big data is characterized by 7 Vs.(Please refer Lecture 55@10:36)"
+                },
+                {
+                    question: "What is Hadoop used in?",
+                    options: ["Distributed processing of large datasets", "Small clusters of computers", "Both a and b", "Neither a nor b"],
+                    correct: 0,
+                    explanation: "Hadoop is used for distributed processing of large datasets across Large clusters of computers(Please refer Lecture 55@23:18)"
+                }
+            ],
+            12: [
+                {
+                    question: "Qualitative analysis does not deal with the analysis of data that is categorical in nature.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Qualitative analysis deals with the analysis of data that is categorical in nature.(Please refer Lecture 56@2:43)"
+                },
+                {
+                    question: "Fill in the blank. Examples of dispersion measures include _______ and______.",
+                    options: ["Discrete, categorical", "Continuous, quantitative", "Discrete, quantitative", "Range, Variance"],
+                    correct: 3,
+                    explanation: "Examples of dispersion measures include Range and Variance(Please refer Lecture 56@13:51)"
+                },
+                {
+                    question: "Select the statement(s) that denote the key variables of determining statistical significance. Statement I: Range size Statement II: Effect size Statement III: Sample size",
+                    options: ["Statement I", "Statement I and II", "Statements II, and III", "None of these"],
+                    correct: 2,
+                    explanation: "The key variables of determining statistical significance include effect size and sample size(Please refer Lecture 56@16:32)"
+                },
+                {
+                    question: "The different objectives of AgriSens includes –",
+                    options: ["More yields with less water", "Save limited water resource", "Automatic irrigation", "All of these"],
+                    correct: 3,
+                    explanation: "The different objectives of AgriSens includes More yields with less water, Save limited water resources and Automatic irrigation.(Please refer Lecture 57@5:32)"
+                },
+                {
+                    question: "The two most relevant sensors directly used in agriculture are__________.",
+                    options: ["Soil moisture and ECG sensor", "Soil moisture and water level sensor", "ECG sensor and water level sensor", "All of these"],
+                    correct: 1,
+                    explanation: "Soil moisture and water level sensors are the necessary sensors generally used in agriculture.(Please refer Lecture 57@13:11)"
+                },
+                {
+                    question: "The integrated design of the remote server includes______________.",
+                    options: ["Data server", "Web server", "Multi users server", "All of these"],
+                    correct: 3,
+                    explanation: "The integrated design of the remote server includes repository data server, web server and multi-users server.(Please refer Lecture 57@9:35)"
+                },
+                {
+                    question: "Select the correct order of the component layers present in the IoT healthcare.",
+                    options: ["Sensing layer, cloud platform layer, aggregated layer, processing layer", "Sensing layer, aggregated layer, processing layer, cloud platform layer", "Aggregated layer, sensing layer, processing layer, cloud platform layer", "Sensing layer, processing layer, aggregated layer, cloud platform layer"],
+                    correct: 1,
+                    explanation: "The sensing layer senses data and transmit it o the aggregation layer where the data are aggregated. The aggregated layer further transfers the data to the processing layer the data are processed and final sent to the cloud platform.(Please refer Lecture 58@8:25)"
+                },
+                {
+                    question: "Which of the following networks is used in AmbuSens?",
+                    options: ["IEEE 802.15.4", "6LoWPAN", "Wireless Body Area Network", "IEEE 802.15.2"],
+                    correct: 2,
+                    explanation: "In AmbuSens, the network used is Wireless Body Area Network.(Please refer Lecture 58@23:03)"
+                },
+                {
+                    question: "Wireless IoT driven solutions for remote healthcare facility provisioning brings healthcare to patients than bringing patients to healthcare.",
+                    options: ["True", "False"],
+                    correct: 0,
+                    explanation: "In IoT health care, wireless IoT driven solutions bring healthcare to patients than bringing patients to healthcare.(Please refer Lecture 58@11:40)"
+                },
+                {
+                    question: "Fill in the blank. The statistical data analysis tools can be applied on_____________.",
+                    options: ["Sensor data", "Images", "Videos", "All of these"],
+                    correct: 0,
+                    explanation: "The statistical data analysis tools can be applied on sensor data. Please refer Lecture 59@18:16)"
+                },
+                {
+                    question: "Which of the following sensors are present in smartphones handheld devices are used for activity monitoring?",
+                    options: ["EEG and GPS", "Accelerometer and EEG", "Accelerometer and Gyroscope", "All of these"],
+                    correct: 2,
+                    explanation: "Accelerometer and Gyroscope are used for activity monitoring.(Please refer Lecture 59@15:29)"
+                },
+                {
+                    question: "Which of the following is the primary disadvantage of using camera-based activity tracking?",
+                    options: ["Accurate", "Processing intensive", "Both Accurate and Processing intensive", "None of these"],
+                    correct: 1,
+                    explanation: "Camera based activity tracking is very much process intensive. (Please refer Lecture 59@17:43)"
+                },
+                {
+                    question: "By performing continuous monitoring of a person’s activity, it is not possible to observe his/her behavior or to identify any repetitive pattern in his/her day-to-day activity.",
+                    options: ["True", "False"],
+                    correct: 1,
+                    explanation: "Continuous monitoring of activity results in daily observations of human behavior and repetitive patterns in their activity.(Please refer Lecture 59@14:33)"
+                },
+                {
+                    question: "Which of the following are the inbuilt sensors that are present in high end smartphones?",
+                    options: ["ECG and EEG", "Accelerometer, proximity sensor, and EEG", "Accelerometer, Compass, and Gyroscope", "Pressure sensor and NPK sensor"],
+                    correct: 2,
+                    explanation: "High end smartphones are likely to have accelerometer, compass, and gyroscope.(Please refer Lecture 60@2:28)"
+                },
+                {
+                    question: "Fill in the blank. Processing the handheld activity device data with artificial intelligence can be used for________.",
+                    options: ["Fall detection", "Heart rate detection", "Vehicle detection", "All of these"],
+                    correct: 0,
+                    explanation: "Processing the handheld activity device data with artificial intelligence can be used for detecting sudden fall of a person.(Please refer Lecture 60@11:56)"
+                }
+            ]
+        };
+
+        // DOM elements
+        const weekButtons = document.querySelectorAll('.week-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const questionsContainer = document.getElementById('questions-container');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        let currentWeek = null;
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+
+        // Week selection
+        weekButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                weekButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Set current week and show quiz
+                currentWeek = parseInt(button.getAttribute('data-week'));
+                quizContainer.style.display = 'block';
+                
+                // Load questions for selected week
+                loadQuestions(currentWeek);
+            });
+        });
+
+        // Load questions for selected week
+        function loadQuestions(week) {
+            currentQuestionIndex = 0;
+            questionsContainer.innerHTML = '';
+            
+            const questions = quizData[week];
+            questions.forEach((q, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.style.display = index === 0 ? 'block' : 'none';
+                
+                questionCard.innerHTML = `
+                    <div class="question-number">Question ${index + 1}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" data-question="${index}" data-option="${optIndex}">
+                                <strong>${String.fromCharCode(97 + optIndex).toUpperCase()})</strong> ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${index}"></div>
+                    <div class="explanation" id="explanation-${index}">
+                        <div class="explanation-title">Explanation:</div>
+                        <div class="explanation-content">${q.explanation}</div>
+                    </div>
+                `;
+                
+                questionsContainer.appendChild(questionCard);
+            });
+            
+            // Add event listeners to options
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const questionIndex = parseInt(option.getAttribute('data-question'));
+                    const optionIndex = parseInt(option.getAttribute('data-option'));
+                    
+                    // Deselect other options in the same question
+                    document.querySelectorAll(`.option[data-question="${questionIndex}"]`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Select clicked option
+                    option.classList.add('selected');
+                    selectedOption = { question: questionIndex, option: optionIndex };
+                });
+            });
+            
+            updateProgress();
+        }
+
+        // Check answer
+        checkBtn.addEventListener('click', () => {
+            if (selectedOption === null) {
+                alert('Please select an option first!');
+                return;
+            }
+            
+            const questions = quizData[currentWeek];
+            const currentQuestion = questions[currentQuestionIndex];
+            const feedbackEl = document.getElementById(`feedback-${currentQuestionIndex}`);
+            const explanationEl = document.getElementById(`explanation-${currentQuestionIndex}`);
+            
+            // Check if answer is correct
+            const isCorrect = selectedOption.option === currentQuestion.correct;
+            
+            // Update UI based on correctness
+            document.querySelectorAll(`.option[data-question="${currentQuestionIndex}"]`).forEach((option, index) => {
+                option.classList.remove('correct', 'incorrect');
+                if (index === currentQuestion.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedOption.option && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Show feedback
+            feedbackEl.style.display = 'block';
+            feedbackEl.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackEl.textContent = isCorrect ? 'Correct! Well done.' : `Incorrect. The correct answer is ${String.fromCharCode(97 + currentQuestion.correct).toUpperCase()}).`;
+            
+            // Show explanation
+            explanationEl.style.display = 'block';
+            
+            // Disable further selection after checking
+            document.querySelectorAll(`.option[data-question="${currentQuestionIndex}"]`).forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Show next button and hide check button
+            checkBtn.style.display = 'none';
+            nextBtn.classList.remove('hidden');
+        });
+
+        // Next question
+        nextBtn.addEventListener('click', () => {
+            const questions = quizData[currentWeek];
+            
+            // Hide current question
+            document.querySelectorAll('.question-card')[currentQuestionIndex].style.display = 'none';
+            
+            // Show next question if available
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                document.querySelectorAll('.question-card')[currentQuestionIndex].style.display = 'block';
+                
+                // Reset selection
+                selectedOption = null;
+                
+                // Reset UI for next question
+                const feedbackEl = document.getElementById(`feedback-${currentQuestionIndex}`);
+                const explanationEl = document.getElementById(`explanation-${currentQuestionIndex}`);
+                feedbackEl.style.display = 'none';
+                explanationEl.style.display = 'none';
+                
+                // Re-enable options for next question
+                document.querySelectorAll(`.option[data-question="${currentQuestionIndex}"]`).forEach(option => {
+                    option.style.pointerEvents = 'auto';
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+                
+                // Show check button and hide next button
+                checkBtn.style.display = 'block';
+                nextBtn.classList.add('hidden');
+                
+                updateProgress();
+            } else {
+                // Quiz completed
+                alert('Quiz completed! You have answered all questions.');
+                // Reset to first question for next use
+                currentQuestionIndex = 0;
+                document.querySelectorAll('.question-card')[currentQuestionIndex].style.display = 'block';
+                
+                // Show check button and hide next button
+                checkBtn.style.display = 'block';
+                nextBtn.classList.add('hidden');
+            }
+        });
+
+        // Update progress bar
+        function updateProgress() {
+            const questions = quizData[currentWeek];
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        }
+    </script>
+</body>
+</html>
