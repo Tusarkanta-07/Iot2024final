@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compiler Design Quiz (Dragon Book)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #0066cc;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #003366;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e0f7fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 10px;
+            }
+            button {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Compiler Design Quiz (Dragon Book)</h1>
+        <div id="quiz"></div>
+        <div class="button-container">
+            <button id="prev" onclick="showPrevious()">Previous</button>
+            <button id="next" onclick="showNext()">Next</button>
+            <button id="submit" onclick="submitQuiz()">Submit</button>
+            <button id="restart" onclick="restartQuiz()" style="display: none;">Restart Quiz</button>
+        </div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // 1. Compilers and Compilation Process (1–10)
+            { q: "Which of the following translates source code into object code?", o: ["Interpreter", "Compiler", "Assembler", "Loader"], a: 1 },
+            { q: "A compiler is best described as:", o: ["Program that executes source code", "Program that converts source code into target code", "Program that optimizes hardware", "Debugging tool"], a: 1 },
+            { q: "The main advantage of compiler over interpreter is:", o: ["Faster error detection", "Faster execution", "Less memory usage", "Easier debugging"], a: 1 },
+            { q: "An interpreter executes:", o: ["Entire program before execution", "One statement at a time", "Only optimized code", "Object code"], a: 1 },
+            { q: "Compiler output is usually:", o: ["Source code", "Object code", "Parsed tokens", "Assembly code"], a: 1 },
+            { q: "Which of these is not part of a compilation process?", o: ["Lexical analysis", "Syntax analysis", "Code optimization", "File compression"], a: 3 },
+            { q: "Which of these happens first in compilation?", o: ["Parsing", "Tokenization", "Code generation", "Linking"], a: 1 },
+            { q: "The primary goal of a compiler is to:", o: ["Execute program", "Translate program", "Debug program", "Optimize hardware"], a: 1 },
+            { q: "Cross compiler is a compiler:", o: ["That runs on one machine and produces code for another", "That interprets source code", "That translates assembly to machine code", "That optimizes linking"], a: 0 },
+            { q: "Which of these is machine-independent phase?", o: ["Code generation", "Code optimization", "Linking", "Loading"], a: 1 },
+            // 2. Analysis of Source Program (11–20)
+            { q: "The analysis part of compiler is also called:", o: ["Back-end", "Front-end", "Linking", "Optimization"], a: 1 },
+            { q: "Lexical analysis deals with:", o: ["Structure of tokens", "Grammar rules", "Semantic meaning", "Machine code"], a: 0 },
+            { q: "Syntax analysis is also known as:", o: ["Parsing", "Scanning", "Linking", "Binding"], a: 0 },
+            { q: "Semantic analysis ensures:", o: ["Grammar rules", "Token recognition", "Meaning and type correctness", "Machine code generation"], a: 2 },
+            { q: "A parse tree represents:", o: ["Lexical tokens", "Syntax structure", "Optimized code", "Target code"], a: 1 },
+            { q: "Abstract syntax tree differs from parse tree in that it:", o: ["Ignores grammar", "Eliminates unnecessary details", "Is machine dependent", "Represents only tokens"], a: 1 },
+            { q: "Example of a lexical error:", o: ["Misspelled keyword", "Type mismatch", "Missing semicolon", "Wrong grammar"], a: 0 },
+            { q: "Example of a syntax error:", o: ["Missing semicolon", "Undeclared variable", "Division by zero", "Wrong type"], a: 0 },
+            { q: "Example of a semantic error:", o: ["Undeclared variable", "Wrong spelling of identifier", "Missing )", "Invalid character"], a: 0 },
+            { q: "Static semantic checks include:", o: ["Type checking", "Division by zero", "Null pointer access", "Array index out of bound"], a: 0 },
+            // 3. Phases of Compiler (21–35)
+            { q: "Lexical analysis output is:", o: ["Tokens", "Parse tree", "AST", "Code"], a: 0 },
+            { q: "Syntax analysis output is:", o: ["AST", "Tokens", "Machine code", "Symbol table"], a: 0 },
+            { q: "Semantic analysis checks:", o: ["Grammar", "Types and declarations", "Machine code correctness", "Optimization"], a: 1 },
+            { q: "Intermediate code is generated to:", o: ["Allow portability", "Save memory", "Increase speed", "Avoid linking"], a: 0 },
+            { q: "Code optimization is performed to:", o: ["Improve efficiency", "Reduce parsing time", "Increase compilation time", "Remove tokens"], a: 0 },
+            { q: "Code generation maps:", o: ["High-level → Tokens", "Tokens → Parse tree", "Intermediate code → Target code", "Source code → AST"], a: 2 },
+            { q: "Which phase involves symbol table management?", o: ["Lexical analysis", "Semantic analysis", "Both a and b", "Linking"], a: 2 },
+            { q: "The front-end of compiler includes:", o: ["Lexical, syntax, semantic analysis", "Optimization and code generation", "Linking", "Loading"], a: 0 },
+            { q: "The back-end includes:", o: ["Parsing", "Optimization and code generation", "Tokenization", "Lexical analysis"], a: 1 },
+            { q: "Which is not a compiler phase?", o: ["Error handling", "Linking", "Code generation", "Semantic analysis"], a: 1 },
+            { q: "Which phase generates intermediate representation?", o: ["Parsing", "Semantic analysis", "Intermediate code generation", "Optimization"], a: 2 },
+            { q: "Error recovery during syntax analysis uses:", o: ["Panic mode", "DFA", "Symbol table", "Intermediate code"], a: 0 },
+            { q: "Which phase checks undeclared variables?", o: ["Lexical analysis", "Syntax analysis", "Semantic analysis", "Optimization"], a: 2 },
+            { q: "The main data structure used by semantic analysis is:", o: ["Symbol table", "DFA", "AST", "Parse tree"], a: 0 },
+            { q: "Which optimization is machine independent?", o: ["Loop unrolling", "Strength reduction", "Constant folding", "Register allocation"], a: 2 },
+            // 4. Cousins of Compiler (36–45)
+            { q: "Which is a cousin of compiler?", o: ["Assembler", "Linker", "Loader", "All of the above"], a: 3 },
+            { q: "Assembler converts:", o: ["Assembly → Machine code", "Source → Object code", "Tokens → Assembly", "AST → Machine code"], a: 0 },
+            { q: "Linker combines:", o: ["Source code files", "Object modules", "Machine instructions", "Tokens"], a: 1 },
+            { q: "Loader:", o: ["Loads program into memory", "Generates object code", "Parses tokens", "Optimizes code"], a: 0 },
+            { q: "Preprocessor handles:", o: ["Macros and includes", "Assembly code", "Linking", "Memory allocation"], a: 0 },
+            { q: "Debugger is used for:", o: ["Translating", "Testing execution", "Linking", "Tokenizing"], a: 1 },
+            { q: "Intermediate representations are usually:", o: ["Machine-independent", "Machine-dependent", "Binary only", "Assembly only"], a: 0 },
+            { q: "Which cousin comes after compilation and linking?", o: ["Loader", "Assembler", "Parser", "Optimizer"], a: 0 },
+            { q: "Cross assembler is:", o: ["Runs on one machine, generates code for another", "Interpreter", "Debugger", "Optimizer"], a: 0 },
+            { q: "Preprocessor is mainly used in:", o: ["Java", "C/C++", "Python", "Assembly"], a: 1 },
+            // 5. Lexical Analysis (46–70)
+            { q: "Lexical analyzer removes:", o: ["Comments and spaces", "Tokens", "AST nodes", "Errors only"], a: 0 },
+            { q: "The process of token recognition is called:", o: ["Scanning", "Parsing", "Linking", "Code generation"], a: 0 },
+            { q: "Tokens are described by:", o: ["Regular expressions", "CFG", "DFAs only", "AST"], a: 0 },
+            { q: "The smallest unit of source program is:", o: ["Token", "Lexeme", "Identifier", "Keyword"], a: 1 },
+            { q: "End of file is represented as:", o: ["EOF", "\\0", "$", "#"], a: 0 },
+            { q: "Input buffering helps in:", o: ["Fast scanning", "Parsing", "Symbol table", "Linking"], a: 0 },
+            { q: "Which is used in input buffering?", o: ["Two-buffer scheme", "Stack", "Heap", "Hash table"], a: 0 },
+            { q: "Lex tool generates:", o: ["DFA-based lexer", "Parser", "Intermediate code", "AST"], a: 0 },
+            { q: "Yacc tool is used for:", o: ["Lexical analysis", "Syntax analysis", "Code generation", "Linking"], a: 1 },
+            { q: "Symbol table stores:", o: ["Identifiers and attributes", "Tokens only", "AST nodes", "Machine code"], a: 0 },
+            { q: "DFA is used for:", o: ["Token recognition", "Parsing", "AST generation", "Linking"], a: 0 },
+            { q: "Longest match rule is also known as:", o: ["Maximal munch", "Greedy parse", "Panic mode", "Constant folding"], a: 0 },
+            { q: "Lexical analyzer reports:", o: ["Invalid symbols", "Type mismatch", "Grammar error", "Linking error"], a: 0 },
+            { q: "Which is not recognized in lexical analysis?", o: ["Identifier", "Keyword", "Syntax structure", "Number"], a: 2 },
+            { q: "Token <id, address> contains:", o: ["Identifier name and symbol table entry", "Machine code", "Parse tree", "Keyword"], a: 0 },
+            { q: "Lexeme is:", o: ["Actual string of characters forming a token", "Abstract symbol", "AST node", "Keyword category"], a: 0 },
+            { q: "Which of these is a token?", o: ["Identifier", "x", "int", "123"], a: 0 },
+            { q: "Which of these is a lexeme?", o: ["sum", "Identifier", "Number token", "Keyword category"], a: 0 },
+            { q: "DFA is preferred over NFA because:", o: ["Faster", "Uses more memory", "Slower", "More complex"], a: 0 },
+            { q: "DFA recognizes:", o: ["Regular languages", "Context-free languages", "Context-sensitive languages", "Recursive languages"], a: 0 },
+            { q: "Which error is caught during lexical analysis?", o: ["Invalid identifier", "Missing semicolon", "Undeclared variable", "Type mismatch"], a: 0 },
+            { q: "Symbol table helps in:", o: ["Semantic analysis", "Lexical analysis", "Both a and b", "Linking"], a: 2 },
+            { q: "Which error is not caught in lexical analysis?", o: ["Illegal symbol", "Type mismatch", "Unterminated string", "Invalid character"], a: 1 },
+            { q: "In Lex, actions are written in:", o: ["C code", "Assembly", "Machine code", "Regular expression"], a: 0 },
+            { q: "Which algorithm is used for token recognition?", o: ["Finite automata", "Pushdown automata", "Turing machine", "Recursive descent"], a: 0 },
+            // 6. Extra (71–100)
+            { q: "The dragon book’s formal title is:", o: ["Compilers: Principles, Techniques, and Tools", "Compiler Construction", "Programming Languages", "Code Optimization"], a: 0 },
+            { q: "The authors of Dragon Book are:", o: ["Hopcroft & Ullman", "Aho, Lam, Sethi, Ullman", "Knuth & Morris", "Dennis Ritchie"], a: 1 },
+            { q: "Compiler front-end is concerned with:", o: ["Language", "Machine architecture", "Linking", "Optimization"], a: 0 },
+            { q: "Compiler back-end is concerned with:", o: ["Language", "Machine architecture", "Parsing", "Tokens"], a: 1 },
+            { q: "Which is a machine-dependent phase?", o: ["Code generation", "Parsing", "Semantic analysis", "Lexical analysis"], a: 0 },
+            { q: "Lexical errors are reported at:", o: ["Compile time", "Run time", "Linking time", "Loading time"], a: 0 },
+            { q: "Which is not an example of compiler construction tool?", o: ["Lex", "Yacc", "Loader", "LEX/YACC"], a: 2 },
+            { q: "The parser type used in most compilers is:", o: ["LR parser", "Recursive descent", "Top-down predictive", "Greedy"], a: 0 },
+            { q: "Regular expressions cannot describe:", o: ["Identifiers", "Nested structures", "Numbers", "Keywords"], a: 1 },
+            { q: "Context-free grammars are used in:", o: ["Syntax analysis", "Lexical analysis", "Code generation", "Linking"], a: 0 },
+            { q: "Left recursion in grammar must be removed for:", o: ["Top-down parsing", "Bottom-up parsing", "Code optimization", "Code generation"], a: 0 },
+            { q: "First and Follow sets are used in:", o: ["LL parsing", "DFA construction", "Code generation", "Symbol table"], a: 0 },
+            { q: "Shift-reduce conflict occurs in:", o: ["LR parsing", "LL parsing", "DFA", "Symbol table"], a: 0 },
+            { q: "Recursive descent parsing belongs to:", o: ["Top-down parsing", "Bottom-up parsing", "DFA", "Lexical analysis"], a: 0 },
+            { q: "Operator precedence parsing is:", o: ["Bottom-up", "Top-down", "Recursive", "Predictive"], a: 0 },
+            { q: "Syntax-directed translation associates:", o: ["Semantic rules with grammar", "Tokens with regex", "DFAs with NFA", "Optimizations with code"], a: 0 },
+            { q: "Type checking is part of:", o: ["Semantic analysis", "Lexical analysis", "Syntax analysis", "Code generation"], a: 0 },
+            { q: "Static type checking is done:", o: ["At compile time", "At run time", "During linking", "During loading"], a: 0 },
+            { q: "Dynamic type checking is done:", o: ["At run time", "At compile time", "During parsing", "During linking"], a: 0 },
+            { q: "Which is machine-independent optimization?", o: ["Common subexpression elimination", "Loop unrolling", "Register allocation", "Instruction scheduling"], a: 0 },
+            { q: "Peephole optimization is:", o: ["Local optimization", "Global optimization", "Loop optimization", "Dynamic optimization"], a: 0 },
+            { q: "Intermediate representation that is close to assembly is:", o: ["Three-address code", "Abstract syntax tree", "Tokens", "Parse tree"], a: 0 },
+            { q: "Quadruple representation has:", o: ["Operator and three fields", "Two fields only", "Tokens only", "AST nodes"], a: 0 },
+            { q: "DAG (Directed Acyclic Graph) is used in:", o: ["Optimization", "Tokenization", "Parsing", "Linking"], a: 0 },
+            { q: "Register allocation is done during:", o: ["Code generation", "Parsing", "Semantic analysis", "Lexical analysis"], a: 0 },
+            { q: "Spilling in register allocation means:", o: ["Storing values in memory", "Dropping tokens", "Loop unrolling", "Error recovery"], a: 0 },
+            { q: "Bootstrapping is:", o: ["Writing a compiler in the language it compiles", "Linking object files", "Parsing grammar", "Optimizing code"], a: 0 },
+            { q: "Just-In-Time (JIT) compilation is used in:", o: ["Java", "C", "Assembly", "COBOL"], a: 0 },
+            { q: "Which compiler construction tool generates parser from grammar?", o: ["Yacc", "Lex", "DFA", "Loader"], a: 0 },
+            { q: "Which phase is responsible for generating symbol table entries?", o: ["Lexical and semantic analysis", "Code generation", "Optimization", "Linking"], a: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let score = 0;
+
+        const topicGroups = [
+            { name: "Compilers and Compilation Process", start: 0, end: 9 },
+            { name: "Analysis of Source Program", start: 10, end: 19 },
+            { name: "Phases of Compiler", start: 20, end: 34 },
+            { name: "Cousins of Compiler", start: 35, end: 44 },
+            { name: "Lexical Analysis", start: 45, end: 69 },
+            { name: "Extra", start: 70, end: 99 }
+        ];
+
+        function displayQuestion() {
+            const quizDiv = document.getElementById('quiz');
+            const currentTopic = topicGroups.find(group => currentQuestion >= group.start && currentQuestion <= group.end);
+            let html = `<h2>${currentTopic.name} (Question ${currentQuestion + 1} of ${questions.length})</h2>`;
+            const q = questions[currentQuestion];
+            html += `<div class="question"><p>${currentQuestion + 1}. ${q.q}</p><div class="options">`;
+            q.o.forEach((option, index) => {
+                html += `<label><input type="radio" name="q${currentQuestion}" value="${index}" ${userAnswers[currentQuestion] === index ? 'checked' : ''}>${option}</label>`;
+            });
+            html += `</div></div>`;
+            quizDiv.innerHTML = html;
+
+            document.getElementById('prev').style.display = currentQuestion === 0 ? 'none' : 'inline-block';
+            document.getElementById('next').style.display = currentQuestion === questions.length - 1 ? 'none' : 'inline-block';
+            document.getElementById('submit').style.display = currentQuestion === questions.length - 1 ? 'inline-block' : 'none';
+            document.getElementById('restart').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+
+            // Add event listeners to radio buttons
+            document.querySelectorAll(`input[name="q${currentQuestion}"]`).forEach(input => {
+                input.addEventListener('change', (e) => {
+                    userAnswers[currentQuestion] = parseInt(e.target.value);
+                });
+            });
+        }
+
+        function showPrevious() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function showNext() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            score = 0;
+            let resultsHtml = `<h2>Results</h2><p>Your score: <strong>${score}/${questions.length}</strong></p>`;
+            questions.forEach((q, index) => {
+                if (userAnswers[index] === q.a) {
+                    score++;
+                }
+                resultsHtml += `<p><strong>Q${index + 1}. ${q.q}</strong><br>`;
+                resultsHtml += `Your answer: ${userAnswers[index] !== null ? q.o[userAnswers[index]] : 'Not answered'}<br>`;
+                resultsHtml += `Correct answer: ${q.o[q.a]}<br>`;
+                resultsHtml += userAnswers[index] === q.a ? '<span class="correct">Correct!</span>' : '<span class="incorrect">Incorrect</span>';
+                resultsHtml += `</p>`;
+            });
+            resultsHtml = `<h2>Results</h2><p>Your score: <strong>${score}/${questions.length}</strong></p>` + resultsHtml;
+            document.getElementById('results').innerHTML = resultsHtml;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('prev').style.display = 'none';
+            document.getElementById('next').style.display = 'none';
+            document.getElementById('submit').style.display = 'none';
+            document.getElementById('restart').style.display = 'inline-block';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            score = 0;
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            displayQuestion();
+        }
+
+        // Initialize quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
